@@ -1,4 +1,4 @@
-#Introdução
+# Introdução
 
 O No show é um termo amplamente utilizado na literatura para descrever a falta de indivíduos em eventos agendados. Neste trabalho, analisaremos o \textit{no-show} dos pacientes em consultas médicas. 
 
@@ -8,11 +8,11 @@ Em geral, a solução adotada é a prática de \textit{overbooking}, em que mais
 
 Deste modo, com a facilidade de obtenção de dados sobre o paciente, uma nova e possível abordagem é a utilização de métodos estatísticos de aprendizagem para predizer a probabilidade do paciente comparecer a consulta médica e, desta forma, definir uma melhor estratégia para otimizar os agendamentos.  
 
-##Objetivo}
+## Objetivo
 
 O objetivo deste trabalho é aplicar as técnicas de aprendizagem estatística para prever se um paciente irá faltar uma consulta médica dado um conjunto de fatores que podem influenciar na decisão de ir ao consultório. Assim, com esse problema de classificação supervisionada poderemos predizer quais grupos de pacientes são mais propensos a comparecer ou não às consultas médicas agendadas.
 
-Descrição dos dados
+## Descrição dos dados
 
 Os dados são compostos por 110.527 agendamentos de consulta no total de 62.299 pacientes em diversas faixas de idade, sendo 64\% de sexo feminino e 36\% de sexo masculino. O período da coleta dos dados foi entre novembro de 2015 e maio de 2016.
 
