@@ -33,7 +33,7 @@ summary(data)
 status_table <- table(data$No.show)
 status_table
 
-ggplot(data, aes(x=No.show, fill=No.show)) + geom_bar()
+ggplot(data, aes(x=No.show, fill=No.show)) + geom_bar() + scale_fill_manual(values=c("grey50", "#723881"))
 
 #25.3% das pessoas nao compareceu para consulta comparando com os que compareceu
 (status_table["Yes"]/status_table["No"])*100
@@ -52,7 +52,7 @@ addmargins(tab_Gender)
 prop.table(tab_Gender,1)
 
 g_Gender_1 <- ggplot(data, aes(x=Gender, fill=Gender)) + geom_bar(position="dodge")
-g_Gender_2 <- ggplot(data, aes(x=Gender, fill=No.show)) + geom_bar(position="fill")
+g_Gender_2 <- ggplot(data, aes(x=Gender, fill=No.show)) + geom_bar(position="fill") + scale_fill_manual(values=c("grey50", "#723881"))
 grid.arrange(g_Gender_1, g_Gender_2,ncol=2, top='Gender distribution')
 
 
@@ -64,17 +64,17 @@ addmargins(tab_Sms)
 prop.table(tab_Sms,1)
 
 # add no-show e (Diabetes, Alcoholism, Hipertension, Handcap, Scholarship, SMS_received)
-g_Diabetes <- ggplot(data, aes(x=Diabetes, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none")
-g_Alcoholism <- ggplot(data, aes(x=Alcoholism, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none")
-g_Hipertension <- ggplot(data, aes(x=Hipertension, fill=No.show)) + geom_bar(position="fill")
-g_Handcap <- ggplot(data, aes(x=Handcap, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none")
-g_Scholarship <- ggplot(data, aes(x=Scholarship, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none")
-g_SMS_received <- ggplot(data, aes(x=SMS_received, fill=No.show)) + geom_bar(position="fill")
+g_Diabetes <- ggplot(data, aes(x=Diabetes, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
+g_Alcoholism <- ggplot(data, aes(x=Alcoholism, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
+g_Hipertension <- ggplot(data, aes(x=Hipertension, fill=No.show)) + geom_bar(position="fill") + scale_fill_manual(values=c("grey50", "#723881"))
+g_Handcap <- ggplot(data, aes(x=Handcap, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
+g_Scholarship <- ggplot(data, aes(x=Scholarship, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
+g_SMS_received <- ggplot(data, aes(x=SMS_received, fill=No.show)) + geom_bar(position="fill") + scale_fill_manual(values=c("grey50", "#723881"))
 
 # Alcoholism eh praticamente igual, isso quer dizer que nao tem efeito no variavel resposta
 # Diabetes, Hipertension, Scholarship, Handcap tem pequenas diferencas que nao sao relevantes
 # SMS_received = quem que recebe mensagem tem mais proporcao que nao compareceu, ou seja, mensagem nao faz efeito
-grid.arrange(g_Diabetes, g_Alcoholism, g_Hipertension, ncol=3, top='Variables effect')
+grid.arrange(g_Diabetes, g_Alcoholism, g_Hipertension, ncol=3, top='Variables effect') 
 grid.arrange(g_Handcap, g_Scholarship, g_SMS_received, ncol=3, top='Variables effect')
 
 #add no-show e Neighbourhood
