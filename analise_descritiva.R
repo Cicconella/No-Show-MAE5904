@@ -7,10 +7,17 @@ library(dplyr)
 teste
 
 ##### Carrega Dados #####
+<<<<<<< HEAD
 data <- read.table("noshowappointments/KaggleV2-May-2016.csv",
                    header=T, sep=",")
 head(data )
 attach(data )
+=======
+data = read.table("noshowappointments/KaggleV2-May-2016.csv",
+                   header=T, sep=",")
+head(data)
+attach(data)
+>>>>>>> 1a82921f53164758f29d671ea56e38bd97cd7981
 
 str(data)
 names(data)
@@ -31,12 +38,11 @@ summary(data)
 
 ##### Analise da variavel no-show #####
 
-
 # estudo para a variavel resposta no-show
 status_table <- table(data$No.show)
 status_table
 
-ggplot(data, aes(x=No.show, fill=No.show)) + geom_bar() + scale_fill_manual(values=c("grey50", "#723881"))
+ggplot(data, aes(x=No.show, fill=No.show)) + geom_bar() + scale_fill_manual(values=c("grey60", "#723881"))
 
 #25.3% das pessoas nao compareceu para consulta comparando com os que compareceu
 (status_table["Yes"]/status_table["No"])*100
@@ -47,45 +53,7 @@ ggplot(data, aes(x=No.show, fill=No.show)) + geom_bar() + scale_fill_manual(valu
 # numero total de paciente distintos, isso quer dizer que tem pacientes que marcar mais de uma vez
 length(unique(data$PatientId))
 
-
-
-##### Analise do tempo de espera entre o agendamento e consulta #####
-dados$ScheduledDay
-dados$AppointmentDay
-
-agenda = gsub("T"," ",ScheduledDay)
-agenda = gsub("Z","",agenda)
-class(agenda)
-
-agenda = strptime(agenda, "%Y-%m-%d %H:%M:%S")
-agenda
-
-dia = gsub("T"," ",AppointmentDay)
-dia = gsub("Z","",dia)
-
-dia = strptime(dia, "%Y-%m-%d %H:%M:%S")
-dia
-
-tempo = difftime(dia,agenda,units = "day")
-tempo = as.integer(tempo)
-
-#Amostras com erro 
-dados$ScheduledDay[which(tempo<0)] = NA
-dados$AppointmentDay[which(tempo<0)] = NA
-
-#Distribuicao do tempo
-boxplot(tempo~No.show)
-hist(tempo,freq = F, col="green", nc=30)
-
-
 ##### Genero #####
-colnames(dados)
-
-table(Gender)
-
-barplot(table(Gender))
-barplot(table(Gender,No.show), beside = T)
-
 
 # add no-show e gender
 tab_Gender <- table(data$Gender, data$No.show)
@@ -124,8 +92,6 @@ faixa_etaria[idoso] = "Idoso"
 
 barplot(table(No.show,faixa_etaria), beside = T)
 barplot(t(t(table(No.show,faixa_etaria))/apply(table(No.show,faixa_etaria),2,sum)), beside = T)
-
-
 
 
 ##### SMS #####
@@ -247,5 +213,33 @@ grid.arrange(g_AwaitingTime_1, g_AwaitingTime_2,ncol=2, top='awaitingDays distri
 #                             levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday" , 
 #                                      "Saturday", "Sunday"))
 
+
+##### Analise do tempo de espera entre o agendamento e consulta #####
+dados$ScheduledDay
+dados$AppointmentDay
+
+agenda = gsub("T"," ",ScheduledDay)
+agenda = gsub("Z","",agenda)
+class(agenda)
+
+agenda = strptime(agenda, "%Y-%m-%d %H:%M:%S")
+agenda
+
+dia = gsub("T"," ",AppointmentDay)
+dia = gsub("Z","",dia)
+
+dia = strptime(dia, "%Y-%m-%d %H:%M:%S")
+dia
+
+tempo = difftime(dia,agenda,units = "day")
+tempo = as.integer(tempo)
+
+#Amostras com erro 
+dados$ScheduledDay[which(tempo<0)] = NA
+dados$AppointmentDay[which(tempo<0)] = NA
+
+#Distribuicao do tempo
+boxplot(tempo~No.show)
+hist(tempo,freq = F, col="green", nc=30)
 
 
