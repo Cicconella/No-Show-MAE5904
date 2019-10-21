@@ -1,15 +1,23 @@
-# PROJETO NO-SHOW
-
+# PROJETO NO-SHOW 
 library(ggplot2)
 library(gridExtra)
 library(lubridate)
 library(dplyr)
 
+
+
 ##### Carrega Dados #####
+<<<<<<< HEAD
+data <- read.table("noshowappointments/KaggleV2-May-2016.csv",
+                   header=T, sep=",")
+head(data )
+attach(data )
+=======
 data = read.table("noshowappointments/KaggleV2-May-2016.csv",
                    header=T, sep=",")
 head(data)
 attach(data)
+>>>>>>> 1a82921f53164758f29d671ea56e38bd97cd7981
 
 str(data)
 names(data)
