@@ -3,6 +3,7 @@ library(ggplot2)
 library(gridExtra)
 library(lubridate)
 library(dplyr)
+a
 
 ##### Carrega Dados #####
 data <- read.table("noshowappointments/KaggleV2-May-2016.csv",
