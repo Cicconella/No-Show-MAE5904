@@ -164,9 +164,18 @@ g_AwaitingTime_2 <- ggplot(data, aes(x=awaitingDays, fill=No.show)) +
 # e precisamos tirar fora os que tem awaiting negativos
 grid.arrange(g_AwaitingTime_1, g_AwaitingTime_2,ncol=2, top='awaitingDays distribution')
 
+p <- ggplot_build(g_AwaitingTime_2) 
+head(p$data[[1]], 3)
 
 # - calcular day of the week of the variable scheduleday
+DayOfTheWeek <- factor(weekdays(data$ScheduledDay),levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"))
 
-# data$DayOfTheWeek <- factor(data$DayOfTheWeek, 
-#                             levels=c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday" , 
-#                                      "Saturday", "Sunday"))
+# nao temos consultas marcadas no domingo, e temos um pouquinho no sabado, 
+# as consultas estao mais concentradas no dia de semana
+ggplot(data, aes(x=DayOfTheWeek, fill=No.show)) + geom_bar(position="stack") + 
+  scale_fill_manual(values=c("grey50", "#723881")) +
+  ggtitle("Amount of No Shows across ScheduledDay")
+
+
+
+
