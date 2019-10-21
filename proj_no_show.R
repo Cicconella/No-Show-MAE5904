@@ -156,7 +156,7 @@ g_AwaitingTime_1 <- ggplot(data, aes(x=No.show, y=awaitingDays, fill=No.show)) +
   scale_fill_manual(values=c("grey50", "#723881"))
 
 g_AwaitingTime_2 <- ggplot(data, aes(x=awaitingDays, fill=No.show)) + 
-  geom_density(alpha=0.30) + 
+  geom_density(alpha=0.4) + 
   coord_cartesian(xlim=c(0, 200)) +
   scale_fill_manual(values=c("grey50", "#723881")) 
 
