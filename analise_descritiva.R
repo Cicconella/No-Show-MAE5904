@@ -6,10 +6,10 @@ library(lubridate)
 library(dplyr)
 
 ##### Carrega Dados #####
-dados = read.table("noshowappointments/KaggleV2-May-2016.csv",
+data <- read.table("noshowappointments/KaggleV2-May-2016.csv",
                    header=T, sep=",")
-head(dados)
-attach(dados)
+head(data )
+attach(data )
 
 str(data)
 names(data)
