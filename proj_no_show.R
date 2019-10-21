@@ -146,11 +146,24 @@ ggplot(data, aes(x=hour(ScheduledDay), fill=No.show)) + geom_bar(position="fill"
 ggplot(data, aes(x=hour(ScheduledDay), fill=No.show)) + geom_bar(position="fill") + 
   scale_fill_manual(values=c("grey50", "#723881")) 
 
-
-typeof(data$ScheduledDay)
-
-
 #calcular lag entre as duas datas
+awaitingDays = difftime(data$AppointmentDay, data$ScheduledDay, units="days")
+min(awaitingDays)
+max(awaitingDays)
+
+g_AwaitingTime_1 <- ggplot(data, aes(x=No.show, y=awaitingDays, fill=No.show)) + 
+  geom_boxplot() + 
+  scale_fill_manual(values=c("grey50", "#723881"))
+
+g_AwaitingTime_2 <- ggplot(data, aes(x=awaitingDays, fill=No.show)) + 
+  geom_density(alpha=0.30) + 
+  coord_cartesian(xlim=c(0, 100)) +
+  scale_fill_manual(values=c("grey50", "#723881")) 
+
+# as pessoas que comparecem na consulta tem menos dias de espera, mas tem muitos outliers
+# e precisamos tirar fora os que tem awaiting negativos
+grid.arrange(g_AwaitingTime_1, g_AwaitingTime_2,ncol=2, top='awaitingDays distribution')
+
 
 # - calcular day of the week of the variable scheduleday
 
