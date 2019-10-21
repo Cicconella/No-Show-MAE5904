@@ -16,8 +16,8 @@ str(data)
 names(data)
 
 data$Gender <- factor(data$Gender, levels = c("M", "F"))
-data$AppointmentDay <- strptime(data$AppointmentDay, "%Y-%m-%dT%H:%M:%SZ")
-data$ScheduledDay   <- strptime(data$ScheduledDay, "%Y-%m-%dT%H:%M:%SZ")
+data$AppointmentDay <- as.POSIXct(strptime(data$AppointmentDay, "%Y-%m-%dT%H:%M:%SZ"))
+data$ScheduledDay   <- as.POSIXct(strptime(data$ScheduledDay, "%Y-%m-%dT%H:%M:%SZ"))
 data$Diabetes <- as.logical(data$Diabetes)
 data$Alcoholism <- as.logical(data$Alcoholism)
 data$Hipertension <- as.logical(data$Hipertension)
@@ -28,6 +28,7 @@ data$SMS_received <- as.logical(data$SMS_received)
 data$No.show <- factor(data$No.show, levels = c("Yes", "No"))
 
 summary(data)
+
 
 # estudo para a variavel resposta no-show
 status_table <- table(data$No.show)
@@ -147,6 +148,7 @@ ggplot(data, aes(x=hour(ScheduledDay), fill=No.show)) + geom_bar(position="fill"
 
 
 typeof(data$ScheduledDay)
+
 
 #calcular lag entre as duas datas
 
