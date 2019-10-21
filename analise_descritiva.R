@@ -4,7 +4,7 @@ library(gridExtra)
 library(lubridate)
 library(dplyr)
 
-teste
+
 
 ##### Carrega Dados #####
 <<<<<<< HEAD
