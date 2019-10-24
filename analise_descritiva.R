@@ -3,21 +3,16 @@ library(ggplot2)
 library(gridExtra)
 library(lubridate)
 library(dplyr)
-
+library(xtable)
+library(reshape2) 
 
 
 ##### Carrega Dados #####
-<<<<<<< HEAD
 data <- read.table("noshowappointments/KaggleV2-May-2016.csv",
                    header=T, sep=",")
+
 head(data )
 attach(data )
-=======
-data = read.table("noshowappointments/KaggleV2-May-2016.csv",
-                   header=T, sep=",")
-head(data)
-attach(data)
->>>>>>> 1a82921f53164758f29d671ea56e38bd97cd7981
 
 str(data)
 names(data)
@@ -39,10 +34,22 @@ summary(data)
 ##### Analise da variavel no-show #####
 
 # estudo para a variavel resposta no-show
-status_table <- table(data$No.show)
-status_table
+status_table <- round(table(data$No.show)/length(data$No.show),3)
 
-ggplot(data, aes(x=No.show, fill=No.show)) + geom_bar() + scale_fill_manual(values=c("grey60", "#723881"))
+G1 <-  ggplot(data) + 
+  theme_bw() + 
+  geom_bar(mapping = aes(x = No.show, y = ..prop.., group = 1),fill = "#723881", stat = "count",colour="black") + 
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_x_discrete( labels = c("Yes" = "Sim","No" = "Não")) +
+  theme(text = element_text(size=20)) +
+  ylab("Frequência Relativa") +
+  xlab("No Show")
+
+
+pdf("GNoShow.pdf", width = 8, height = 8, paper = "a4r") ; G1; dev.off()
+
+
+
 
 #25.3% das pessoas nao compareceu para consulta comparando com os que compareceu
 (status_table["Yes"]/status_table["No"])*100
@@ -60,19 +67,75 @@ tab_Gender <- table(data$Gender, data$No.show)
 addmargins(tab_Gender)
 
 # embora o numero de feminino eh quase dobro do masculino, a proporcao de no.show entre os sexos parecidos
-prop.table(tab_Gender,1)
+xtable(prop.table(tab_Gender,1)*100,digits = 2)
 
-g_Gender_1 <- ggplot(data, aes(x=Gender, fill=Gender)) + geom_bar(position="dodge")
-g_Gender_2 <- ggplot(data, aes(x=Gender, fill=No.show)) + geom_bar(position="fill") + scale_fill_manual(values=c("grey50", "#723881"))
-grid.arrange(g_Gender_1, g_Gender_2,ncol=2, top='Gender distribution')
+g_Gender_1 <- ggplot(data) + 
+  theme_bw() + 
+  scale_x_discrete( labels = c("F" = "Feminino","M" = "Masculino")) +
+  geom_bar(aes(x=Gender, y = ..prop..,  group = 1), fill = "#723881", stat = "count",colour="black",position="dodge")+
+  scale_y_continuous(labels = scales::percent_format()) +
+  ylab("Frequência Relativa")+
+  theme(text = element_text(size=20)) +
+  xlab("Gênero")
+
+
+data.Gender.No.show <- data.frame(melt(prop.table(tab_Gender,1),id.vars="Yes"))
+
+g_Gender_2 <-   ggplot(data.Gender.No.show, aes(x = Var1, y = value, fill = factor(Var2,labels=c("Yes"="Sim","No" = "Não")), label = Var1)) +
+  theme_bw() + 
+  geom_bar(stat = "identity",colour="black") +
+  scale_x_discrete( labels = c("F" = "Feminino","M" = "Masculino")) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(values=c("grey50", "#723881")) +
+  theme(text = element_text(size=20)) +
+  labs(fill = "No Show") +
+  ylab("Frequência Relativa")+
+  xlab("Gênero")
+
+pdf("GGen_NoShow.pdf", width = 20, height = 20) ;grid.arrange(g_Gender_1, g_Gender_2,ncol=2); dev.off()
+
 
 ##### Age #####
 
-table(Age)
 
-Age[which(Age<0)] = NA
+# add no-show e age
+densAge <- ggplot(data,aes(x=Age,fill=No.show))+
+  geom_density(color="white",alpha=0.4)+
+  ggtitle("Density of Age across No Show")+
+  scale_fill_manual(values=c("grey50","#723881"))
+densAge
+# density = count/n
+# n eh o numero de no-show (yes ou no)
+# densidade = freq.relativa / intervalo
+p <- ggplot_build(densAge) 
+head(p$data[[1]], 3)
 
-barplot(table(Age))
+g_Age_1 <- ggplot(data, aes(x=Age,fill=No.show)) + theme_bw() +
+  ylab("Frequência") + xlab("Idade") + 
+  geom_bar(position = "stack",colour = "black") +
+  theme(legend.position = "none") + 
+  theme(text = element_text(size=20)) +
+  scale_fill_manual(values=c("grey50", "#723881"))
+
+g_Age_2 <- ggplot(data, aes(x=No.show, y=Age, fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não")))) + 
+  scale_x_discrete( labels = c("Yes" = "Sim","No" = "Não")) +
+  theme_bw() + scale_fill_manual(values=c("grey50", "#723881")) +
+  theme(text = element_text(size=20)) +
+  labs(fill = "No Show") + xlab("No Show") +
+  ylab("Idade") + geom_boxplot() 
+
+
+pdf("Gidade_NoShow.pdf", width = 20, height = 20) ;grid.arrange(g_Age_1, g_Age_2,ncol=2); dev.off()
+
+
+# observamos que temos idade de -1, que sao pacientes gravidas, elas frequentam mais nas consultas
+# pelo boxplot, tem uma concentracao maior no intervalo entre 15 ate 60, ou seja, tem mais jovem e adultos do que idosos, 
+# e tem dois outlier de 115 anos
+summary(data$Age)
+
+
+
+
 
 faixas = c("0-5","6-18","19-60","61+")
 
@@ -81,17 +144,61 @@ crianca = which(Age>5 & Age<19)
 adulto = which(Age>18 & Age<61)
 idoso = which(Age>60)
 
-barplot(c(length(bebe), length(crianca), length(adulto),length(idoso))/length(Age), 
-        names = faixas)
+data.faixa <- data.frame(x = c(rep("Bebê(0-5)",length(bebe)),rep("Criança(6-18)",length(crianca)),
+                               rep("Adulto(19-60)",length(adulto)),rep("Idoso(61+)",length(idoso))))
+
+data.faixa$x <- factor(data.faixa$x,levels = c("Bebê(0-5)", "Criança(6-18)", 
+                                               "Adulto(19-60)", "Idoso(61+)"))
+
+
+pdf("GFaixa.pdf", width = 15, height = 15)
+
+ggplot(data.faixa) + 
+  theme_bw() + 
+  geom_bar(aes(x=x, y = ..prop..,  group = 1), fill = "#723881", stat = "count",colour="black",position="dodge")+
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme(text = element_text(size=20)) +
+  ylab("Frequência Relativa")+
+  xlab("Faixa Etária")
+
+dev.off()
+
+
+
+# barplot(c(length(bebe), length(crianca), length(adulto),length(idoso))/length(Age), 
+#         names = faixas)
+
+
 
 faixa_etaria = rep(NA, length(Age))
-faixa_etaria[bebe] = "Bebe"
-faixa_etaria[crianca] = "Criança"
-faixa_etaria[adulto] = "Adulto"
-faixa_etaria[idoso] = "Idoso"
+faixa_etaria[bebe] = "Bebê(0-5)"
+faixa_etaria[crianca] = "Criança(6-18)"
+faixa_etaria[adulto] = "Adulto(19-60)"
+faixa_etaria[idoso] = "Idoso(61+)"
 
-barplot(table(No.show,faixa_etaria), beside = T)
-barplot(t(t(table(No.show,faixa_etaria))/apply(table(No.show,faixa_etaria),2,sum)), beside = T)
+data.Faixa.NoShow <- data.frame(t(t(table(No.show,faixa_etaria))/apply(table(No.show,faixa_etaria),2,sum)))
+
+data.Faixa.NoShow$faixa_etaria  <- factor(data.Faixa.NoShow$faixa_etaria,
+                                          levels = c("Bebê(0-5)", "Criança(6-18)", "Adulto(19-60)", "Idoso(61+)"))
+
+pdf("GFaixa_NoShow.pdf", width = 15, height = 15)
+
+ggplot(data.Faixa.NoShow, aes(x=faixa_etaria,y=Freq,fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não"))))+
+  theme_bw() +
+  geom_bar(stat="identity",colour="black")+
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(values=c("#723881","grey50")) +
+  theme(text = element_text(size=20)) +
+  labs(fill = "No Show") +
+  ylab("Frequência Relativa por Faixa Etária")+
+  xlab("Faixa Etária")
+
+dev.off()
+
+
+
+# barplot(table(No.show,faixa_etaria), beside = T)
+# barplot(t(t(table(No.show,faixa_etaria))/apply(table(No.show,faixa_etaria),2,sum)), beside = T)
 
 
 ##### SMS #####
@@ -107,58 +214,96 @@ prop.table(tab_Sms,1)
 ##### 
 
 # add no-show e (Diabetes, Alcoholism, Hipertension, Handcap, Scholarship, SMS_received)
-g_Diabetes <- ggplot(data, aes(x=Diabetes, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
-g_Alcoholism <- ggplot(data, aes(x=Alcoholism, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
-g_Hipertension <- ggplot(data, aes(x=Hipertension, fill=No.show)) + geom_bar(position="fill") + scale_fill_manual(values=c("grey50", "#723881"))
-g_Handcap <- ggplot(data, aes(x=Handcap, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
-g_Scholarship <- ggplot(data, aes(x=Scholarship, fill=No.show)) + geom_bar(position="fill") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
-g_SMS_received <- ggplot(data, aes(x=SMS_received, fill=No.show)) + geom_bar(position="fill") + scale_fill_manual(values=c("grey50", "#723881"))
+g_Diabetes <- ggplot(data, aes(x=Diabetes, fill=No.show)) + geom_bar(position="fill") +  theme_bw() +
+  theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881")) +
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme(text = element_text(size=20)) + 
+  scale_x_discrete( labels = c("FALSE" = "Falso","TRUE" = "Verdadeiro")) + xlab("Diabetes") + ylab("Frequência Relativa")
+
+g_Alcoholism <- ggplot(data, aes(x=Alcoholism, fill=No.show)) + geom_bar(position="fill") +  theme_bw() +
+  theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881")) +
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme(text = element_text(size=20)) +
+  scale_x_discrete( labels = c("FALSE" = "Falso","TRUE" = "Verdadeiro")) + xlab("Alcoolismo") + ylab("Frequência Relativa")
+
+g_Hipertension <- ggplot(data, aes(x=Hipertension, fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não")))) +   theme_bw() +
+  geom_bar(position="fill") + scale_fill_manual(values=c("grey50", "#723881")) +
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme(text = element_text(size=20)) +
+  scale_x_discrete( labels = c("FALSE" = "Falso","TRUE" = "Verdadeiro")) + xlab("Hipertensão ") + ylab("Frequência Relativa") +
+  labs(fill = "No Show") 
+
+
+g_Handcap <- ggplot(data, aes(x=Handcap, fill=No.show)) + geom_bar(position="fill") +  theme_bw() +
+  theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881")) +
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme(text = element_text(size=20)) +
+  scale_x_discrete( labels = c("FALSE" = "Falso","TRUE" = "Verdadeiro")) + xlab("Deficiência") + ylab("Frequência Relativa") +
+  labs(fill = "No Show") 
+
+g_Scholarship <- ggplot(data, aes(x=Scholarship, fill=No.show)) + geom_bar(position="fill") +  theme_bw() +
+  theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881")) +
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme(text = element_text(size=20)) +
+  scale_x_discrete( labels = c("FALSE" = "Falso","TRUE" = "Verdadeiro")) + xlab("Bolsa Família") + ylab("Frequência Relativa") +
+  labs(fill = "No Show") 
+
+g_SMS_received <- ggplot(data, aes(x=SMS_received, fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não")))) +  theme_bw() +
+  geom_bar(position="fill") + scale_fill_manual(values=c("grey50", "#723881")) +
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme(text = element_text(size=20)) +
+  scale_x_discrete( labels = c("FALSE" = "Falso","TRUE" = "Verdadeiro")) + xlab("Recebeu SMS ") + ylab("Frequência Relativa") +
+  labs(fill = "No Show")  
 
 # Alcoholism eh praticamente igual, isso quer dizer que nao tem efeito no variavel resposta
 # Diabetes, Hipertension, Scholarship, Handcap tem pequenas diferencas que nao sao relevantes
 # SMS_received = quem que recebe mensagem tem mais proporcao que nao compareceu, ou seja, mensagem nao faz efeito
-grid.arrange(g_Diabetes, g_Alcoholism, g_Hipertension, ncol=3, top='Variables effect') 
-grid.arrange(g_Handcap, g_Scholarship, g_SMS_received, ncol=3, top='Variables effect')
+
+pdf("G31NoShow.pdf", width = 20, height = 20, paper = "a4r") # Open a new pdf file
+grid.arrange(g_Diabetes, g_Alcoholism, g_Hipertension, ncol=3 ) 
+dev.off()
+
+
+pdf("G32NoShow.pdf", width = 20, height = 20, paper = "a4r") # Open a new pdf file
+grid.arrange(g_Handcap, g_Scholarship, g_SMS_received, ncol=3 )
+dev.off()
+
+
+
 
 #add no-show e Neighbourhood
-g_neigh_amount <- ggplot(data,aes(x=Neighbourhood,fill=No.show))+
+g_neigh_amount <- ggplot(data,aes(x=Neighbourhood,fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não"))))+
   geom_bar(position="stack")+
+  theme_bw() +
   scale_fill_manual(values=c("grey50","#723881"))+
   theme(axis.text.x = element_text(angle=45, hjust=1,size=5))+
-  ggtitle("Amount of No Shows across Neighbourhood")
+  ylab("Frequência") +
+  xlab("Endereço da Consulta") +
+  theme(text = element_text(size=20)) +
+  labs(fill = "No Show") +
+  ggtitle("No Show versus endereço da consulta")
 
-g_neigh_prop <- ggplot(data,aes(x=Neighbourhood,fill=No.show))+
+g_neigh_prop <- ggplot(data,aes(x=Neighbourhood,fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não"))))+
+  theme_bw() +
   geom_bar(position="fill")+
   scale_fill_manual(values=c("grey50","#723881"))+
   theme(axis.text.x = element_text(angle=45, hjust=1,size=5))+
-  ggtitle("Proportion of No Shows across Neighbourhood")
+  scale_y_continuous(labels = scales::percent_format()) + 
+  theme(text = element_text(size=20)) +
+  ylab("Proporção") +
+  xlab("Endereço da Consulta") +
+  labs(fill = "No Show") +
+  ggtitle("Proporção de No Show versus endereço da consulta")
 
 # se temos mais informacoes como a distancia entre o lugar da consulta e o endereco do paciente, vai sair mais informacoes,
 # tem alguns bairros tem poucas informacoes, portanto nao da para entrar em consideracao
 # tem que ver se esse endereco eh do hospital? 
-grid.arrange(g_neigh_amount, g_neigh_prop, nrow=2, top='Neighbourhood Variable effect')
+pdf("GEndConsultaNoShow.pdf", width = 20, height = 20, paper = "a4r") # Open a new pdf file
+grid.arrange(g_neigh_amount, g_neigh_prop, nrow=2)
+dev.off()
 
 
-# add no-show e age
-densAge <- ggplot(data,aes(x=Age,fill=No.show))+
-  geom_density(color="white",alpha=0.4)+
-  ggtitle("Density of Age across No Show")+
-  scale_fill_manual(values=c("grey50","#723881"))
-densAge
-# density = count/n
-# n eh o numero de no-show (yes ou no)
-# densidade = freq.relativa / intervalo
-p <- ggplot_build(densAge) 
-head(p$data[[1]], 3)
 
-g_Age_1 <- ggplot(data, aes(x=Age,fill=No.show)) + geom_bar(position = "stack") + theme(legend.position = "none") + scale_fill_manual(values=c("grey50", "#723881"))
-g_Age_2 <- ggplot(data, aes(x=No.show, y=Age, fill=No.show)) + geom_boxplot() + scale_fill_manual(values=c("grey50", "#723881"))
-grid.arrange(g_Age_1, g_Age_2,ncol=2, top='Age Variable effect') 
-
-# observamos que temos idade de -1, que sao pacientes gravidas, elas frequentam mais nas consultas
-# pelo boxplot, tem uma concentracao maior no intervalo entre 15 ate 60, ou seja, tem mais jovem e adultos do que idosos, 
-# e tem dois outlier de 115 anos
-summary(data$Age)
 
 
 # add no-show e Appointment
@@ -215,8 +360,8 @@ grid.arrange(g_AwaitingTime_1, g_AwaitingTime_2,ncol=2, top='awaitingDays distri
 
 
 ##### Analise do tempo de espera entre o agendamento e consulta #####
-dados$ScheduledDay
-dados$AppointmentDay
+data$ScheduledDay
+data$AppointmentDay
 
 agenda = gsub("T"," ",ScheduledDay)
 agenda = gsub("Z","",agenda)
@@ -235,8 +380,8 @@ tempo = difftime(dia,agenda,units = "day")
 tempo = as.integer(tempo)
 
 #Amostras com erro 
-dados$ScheduledDay[which(tempo<0)] = NA
-dados$AppointmentDay[which(tempo<0)] = NA
+data$ScheduledDay[which(tempo<0)] = NA
+data$AppointmentDay[which(tempo<0)] = NA
 
 #Distribuicao do tempo
 boxplot(tempo~No.show)
