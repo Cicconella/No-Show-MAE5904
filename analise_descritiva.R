@@ -54,7 +54,7 @@ pdf("GNoShow.pdf", width = 8, height = 8, paper = "a4r") ; G1; dev.off()
     #25.3% das pessoas nao compareceu para consulta comparando com os que compareceu
 (status_table["Yes"]/status_table["No"])*100
 
-#20.2% das pessoas nao compareceu em relacao ao total de agendados
+    #20.2% das pessoas nao compareceu em relacao ao total de agendados
 (status_table["Yes"]/(status_table["No"]+status_table["Yes"]))*100
 
 # numero total de paciente distintos, isso quer dizer que tem pacientes que marcar mais de uma vez
