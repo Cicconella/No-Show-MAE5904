@@ -5,6 +5,7 @@ library(lubridate)
 library(dplyr)
 library(xtable)
 library(reshape2) 
+require(plyr)
 
 
 ##### Carrega Dados #####
@@ -34,14 +35,14 @@ summary(data)
 ##### Analise da variavel no-show #####
 
 # estudo para a variavel resposta no-show
-status_table <- round(table(data$No.show)/length(data$No.show),3)
+    status_table <- round(table(data$No.show)/length(data$No.show),3)
 
 G1 <-  ggplot(data) + 
   theme_bw() + 
   geom_bar(mapping = aes(x = No.show, y = ..prop.., group = 1),fill = "#723881", stat = "count",colour="black") + 
   scale_y_continuous(labels = scales::percent_format()) +
   scale_x_discrete( labels = c("Yes" = "Sim","No" = "Não")) +
-  theme(text = element_text(size=20)) +
+  theme(text = element_text(size=15)) +
   ylab("Frequência Relativa") +
   xlab("No Show")
 
@@ -51,16 +52,59 @@ pdf("GNoShow.pdf", width = 8, height = 8, paper = "a4r") ; G1; dev.off()
 
 
 
-#25.3% das pessoas nao compareceu para consulta comparando com os que compareceu
-(status_table["Yes"]/status_table["No"])*100
+  #25.3% das pessoas nao compareceu para consulta comparando com os que compareceu
+  (status_table["Yes"]/status_table["No"])*100
+  
+  #20.2% das pessoas nao compareceu em relacao ao total de agendados
+  (status_table["Yes"]/(status_table["No"]+status_table["Yes"]))*100
+  
+  # numero total de paciente distintos, isso quer dizer que tem pacientes que marcar mais de uma vez
+    length(unique(data$PatientId))
+  
+# Quantidades de consultas por identificador de paciente
+Freq_consul <- count(data$PatientId)
 
-#20.2% das pessoas nao compareceu em relacao ao total de agendados
-(status_table["Yes"]/(status_table["No"]+status_table["Yes"]))*100
+consult1  <- length(Freq_consul[Freq_consul$freq==1,2])
+consult2  <- length(Freq_consul[Freq_consul$freq==2,2])
+consult3 <- length(Freq_consul[Freq_consul$freq==3,2])
+consult10plus  <- length(Freq_consul[Freq_consul$freq>3,2])
 
-# numero total de paciente distintos, isso quer dizer que tem pacientes que marcar mais de uma vez
-length(unique(data$PatientId))
+consultas <- c("1","2","3","3+")
 
-##### Genero #####
+data.consultas <- data.frame(x = c(rep("1",consult1),rep("2",consult2),
+                                 rep("3",consult3),rep("3+",consult10plus)))
+
+data.consultas$x <- factor(data.consultas$x,levels = c("1", "2","3", "3+"))
+
+porcent.data <- data.frame(x = c("1", "2","3", "3+"), y = round(c(consult1,consult2,
+                                            consult3,consult10plus)/length(Freq_consul$freq),2))
+
+ConsulA <- ggplot(data.consultas) + 
+              theme_bw() + 
+              geom_bar(aes(x=x, y = ..prop..,  group = 1), fill = "#723881", stat = "count",colour="black",position="dodge")+
+              geom_text(data=porcent.data, aes(x = x, y = y+0.02,
+                                  label = paste0(y*100,"%")), size=6) +
+              scale_y_continuous(labels = scales::percent_format()) +
+              theme(text = element_text(size=20)) +
+              ylab("Frequência Relativa")+
+              xlab("Número de consultas")
+
+
+ConsulB <- ggplot(Freq_consul, aes(x=freq)) + theme_bw() +
+              ylab("Frequência") + xlab("Número de consultas") + 
+              geom_bar(position = "stack",colour = "black", fill = "#723881") +
+              theme(legend.position = "none") + 
+              scale_x_continuous(breaks=c(1, 15, 30, 50, 88)) +
+              theme(text = element_text(size=20)) 
+          
+
+pdf("Gconsultas.pdf", width = 20, height = 20) ;grid.arrange(ConsulB, ConsulA,ncol=2); dev.off()
+
+
+summary(Freq_parcientes$freq)
+
+
+    ##### Genero #####
 
 # add no-show e gender
 tab_Gender <- table(data$Gender, data$No.show)
@@ -87,7 +131,7 @@ g_Gender_2 <-   ggplot(data.Gender.No.show, aes(x = Var1, y = value, fill = fact
   scale_x_discrete( labels = c("F" = "Feminino","M" = "Masculino")) +
   scale_y_continuous(labels = scales::percent_format()) +
   scale_fill_manual(values=c("grey50", "#723881")) +
-  theme(text = element_text(size=20)) +
+  theme(text = element_text(size=15)) +
   labs(fill = "No Show") +
   ylab("Frequência Relativa")+
   xlab("Gênero")
@@ -386,5 +430,3 @@ data$AppointmentDay[which(tempo<0)] = NA
 #Distribuicao do tempo
 boxplot(tempo~No.show)
 hist(tempo,freq = F, col="green", nc=30)
-
-
