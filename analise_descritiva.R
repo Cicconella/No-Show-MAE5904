@@ -61,7 +61,7 @@ pdf("GNoShow.pdf", width = 8, height = 8, paper = "a4r") ; G1; dev.off()
   # numero total de paciente distintos, isso quer dizer que tem pacientes que marcar mais de uma vez
     length(unique(data$PatientId))
   
-# Quantidades de consultas por identificador de paciente
+#Freq. da Quantidades de consultas
 Freq_consul <- count(data$PatientId)
 
 consult1  <- length(Freq_consul[Freq_consul$freq==1,2])
@@ -85,26 +85,39 @@ ConsulA <- ggplot(data.consultas) +
               geom_text(data=porcent.data, aes(x = x, y = y+0.02,
                                   label = paste0(y*100,"%")), size=6) +
               scale_y_continuous(labels = scales::percent_format()) +
-              theme(text = element_text(size=20)) +
+              theme(text = element_text(size=18)) +
               ylab("Frequência Relativa")+
-              xlab("Número de consultas")
+              xlab("Quantidade de agendamentos por paciente")
 
 
 ConsulB <- ggplot(Freq_consul, aes(x=freq)) + theme_bw() +
-              ylab("Frequência") + xlab("Número de consultas") + 
+              ylab("Frequência") + xlab("Quantidade de agendamentos por paciente") + 
               geom_bar(position = "stack",colour = "black", fill = "#723881") +
               theme(legend.position = "none") + 
               scale_x_continuous(breaks=c(1, 15, 30, 50, 88)) +
-              theme(text = element_text(size=20)) 
+              theme(text = element_text(size=18)) 
           
 
 pdf("Gconsultas.pdf", width = 20, height = 20) ;grid.arrange(ConsulB, ConsulA,ncol=2); dev.off()
 
 
-summary(Freq_parcientes$freq)
+#freq. agendamento vs no show
+filterdata1 <- filter(data, PatientId %in% Freq_consul[Freq_consul$freq == 1,1])
+filterdata2 <- filter(data, PatientId %in% Freq_consul[Freq_consul$freq == 2,1])
+filterdata3 <- filter(data, PatientId %in% Freq_consul[Freq_consul$freq == 3,1])
+filterdata3plus <- filter(data, PatientId %in% Freq_consul[Freq_consul$freq > 3,1])
 
 
-    ##### Genero #####
+NAgenda <- cbind(table(filterdata1$No.show), table(filterdata2$No.show), table(filterdata3$No.show),
+            table(filterdata3plus$No.show))
+
+colnames(NAgenda) <- c("1","2","3","3+")
+addmargins(NAgenda)
+
+xtable(prop.table(NAgenda,2)*100,digits = 2)
+
+
+##### Genero #####
 
 # add no-show e gender
 tab_Gender <- table(data$Gender, data$No.show)
