@@ -128,9 +128,10 @@ length(teste)
 p = table(dados$No.show[teste])
 p/sum(p)
 
-write.table(dados[treinamento,], "treinamento.csv", col.names = T, row.names = F, quote = F)
+write.table(dados[treinamento,], "treinamento.csv", col.names = T, row.names = F, quote = F, 
+            sep=",")
 
-write.table(dados[teste,], "teste.csv", col.names = T, row.names = F, quote = F)
+write.table(dados[teste,], "teste.csv", col.names = T, row.names = F, quote = F, sep=",")
 
 
 ##### Validação #####
