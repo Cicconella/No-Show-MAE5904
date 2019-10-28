@@ -78,6 +78,7 @@ head(dados)
 #### Dia da Semana ####
 
 
+
 #### 
 
 #Amostras com erro 
