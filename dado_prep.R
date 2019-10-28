@@ -106,3 +106,31 @@ summary(dados)
 which(dados$Wait<0)
 
 dados$Wait[which(dados$Wait<0)]=NA
+
+write.table(dados,"dados_no_show.csv", col.names = T, row.names = F, quote = F, sep=",")
+
+#### Arquivo de treinamento e teste####
+
+dim(dados)
+
+n = nrow(dados)
+
+treinamento = sample(seq(1,n))[1:(n*0.8)]
+length(treinamento)
+
+p = table(dados$No.show[treinamento])
+p/sum(p)
+
+teste = seq(1,n)[-treinamento]
+teste
+length(teste)
+
+p = table(dados$No.show[teste])
+p/sum(p)
+
+write.table(dados[treinamento,], "treinamento.csv", col.names = T, row.names = F, quote = F)
+
+write.table(dados[teste,], "teste.csv", col.names = T, row.names = F, quote = F)
+
+
+##### Validação #####
