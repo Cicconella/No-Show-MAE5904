@@ -191,8 +191,6 @@ pdf("Gidade_NoShow.pdf", width = 20, height = 20) ;grid.arrange(g_Age_1, g_Age_2
   # pelo boxplot, tem uma concentracao maior no intervalo entre 15 ate 60, ou seja, tem mais jovem e adultos do que idosos, 
   # e tem dois outlier de 115 anos
 
-
-
 AgeNoshowYes <- filter(data,No.show=="Yes")$Age
 AgeNoshowNo <- filter(data,No.show=="No"& Age!=(-1))$Age
 
@@ -209,16 +207,22 @@ crianca = which(Age>5 & Age<19)
 adulto = which(Age>18 & Age<61)
 idoso = which(Age>60)
 
+
 data.faixa <- data.frame(x = c(rep("Bebê(0-5)",length(bebe)),rep("Criança(6-18)",length(crianca)),
                                rep("Adulto(19-60)",length(adulto)),rep("Idoso(61+)",length(idoso))))
 
-data.faixa$x <- factor(data.faixa$x,levels = c("Bebê(0-5)", "Criança(6-18)", 
-                                               "Adulto(19-60)", "Idoso(61+)"))
+data.faixa$x <- factor(data.faixa$x,levels = c("Bebê(0-5)", "Criança(6-18)","Adulto(19-60)", "Idoso(61+)"))
+
+
+porcent.datafaixa <- data.frame(x = c("Bebê(0-5)", "Criança(6-18)","Adulto(19-60)", "Idoso(61+)"), 
+              y = round(c(length(bebe),length(crianca), length(adulto),length(idoso))/length(data$Age),2))
 
 
 g_faixa_1 <- ggplot(data.faixa) + 
                 theme_bw() + 
                 geom_bar(aes(x=x, y = ..prop..,  group = 1), fill = "white", stat = "count",colour="black",position="dodge")+
+                geom_text(data=porcent.datafaixa, aes(x = x, y = y+0.02,
+                                   label = paste0(y*100,"%")), size=6) +
                 scale_y_continuous(labels = scales::percent_format()) +
                 theme(text = element_text(size=15)) +
                 ylab("Frequência Relativa")+
@@ -243,11 +247,14 @@ data.Faixa.NoShow <- data.frame(t(t(table(No.show,faixa_etaria))/apply(table(No.
 data.Faixa.NoShow$faixa_etaria  <- factor(data.Faixa.NoShow$faixa_etaria,
                                           levels = c("Bebê(0-5)", "Criança(6-18)", "Adulto(19-60)", "Idoso(61+)"))
 
+data.Faixa.NoShow1 <- cbind(data.Faixa.NoShow, y = round(data.Faixa.NoShow$Freq,2), x = data.Faixa.NoShow$Freq + rep(c(0.02,-0.1),4 ))
 
 
-g_faixa_2 <- ggplot(data.Faixa.NoShow, aes(x=faixa_etaria,y=Freq,fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não"))))+
+g_faixa_2 <- ggplot(data.Faixa.NoShow1, aes(x=faixa_etaria,y=Freq,fill=factor(No.show,labels=c("No" = "Não","Yes"="Sim"))))+
               theme_bw() +
               geom_bar(stat="identity",colour="black")+
+              geom_text(data=data.Faixa.NoShow1, aes(x = faixa_etaria, y = x,
+                                        label = paste0(y*100,"%")), size=6) +
               scale_y_continuous(labels = scales::percent_format()) +
               scale_fill_manual(values=c("#723881","grey50")) +
               theme(text = element_text(size=15)) +
@@ -271,6 +278,7 @@ tab_Sms <- table(data$SMS_received, data$No.show)
 addmargins(tab_Sms)
 
 # os que receberam a mensagem, 72% compareceu, os que nao receberam a mensagem, 83% compareceu, ou seja, nao ha muito efeito sobre a mensagem
+
 prop.table(tab_Sms,1)
 
 
