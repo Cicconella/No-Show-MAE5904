@@ -13,10 +13,12 @@ crianca = which(Age>5 & Age<19)
 adulto = which(Age>18 & Age<61)
 idoso = which(Age>60)
 
-dados$Age[bebe] = 1
-dados$Age[crianca] = 2
-dados$Age[adulto] = 3
-dados$Age[idoso] = 4
+dados$Age[bebe] = "1"
+dados$Age[crianca] = "2"
+dados$Age[adulto] = "3"
+dados$Age[idoso] = "4"
+
+dados$Age = as.factor(dados$Age)
 
 head(dados)
 
@@ -49,11 +51,11 @@ head(dados)
 horario = unlist(strsplit(ScheduledDay, split = "T")) 
 horario = horario[seq(2,length(horario),by=2)]
 horario = gsub("Z","",horario)
-horario
+horario[12000:12020]
 
 tt <- strptime(paste("2001-01-01", horario), format="%Y-%m-%d %H:%M:%S")
 
-horario = format(round(tt, units="hours"), format="%H:%M:%S")[1:20]
+horario = format(round(tt, units="hours"), format="%H:%M:%S")
 
 horario = unlist(strsplit(horario, split = ":")) 
 horario = horario[seq(1,length(horario),by=3)]
@@ -77,10 +79,30 @@ head(dados)
 
 #### Dia da Semana ####
 
+dia = gsub("T"," ",AppointmentDay)
+dia = gsub("Z","",dia)
 
+dia = strptime(dia, "%Y-%m-%d %H:%M:%S")
+dia
 
-#### 
+Day_Week = weekdays(dia)
+table(dia_semana)
+
+dados = cbind(dados, Day_Week)
+head(dados)
+
+dados[19745,]
+
+#### Excluir variáveis ScheduledDay e AppointmentDay #####
+
+dados = dados[,-c(4,5)]
+head(dados)
 
 #Amostras com erro 
-#data$ScheduledDay[which(tempo<0)] = NA
-#data$AppointmentDay[which(tempo<0)] = NA
+
+summary(dados)
+
+# 5 amostras de wait são negativas, entao colocaremos como NA 
+which(dados$Wait<0)
+
+dados$Wait[which(dados$Wait<0)]=NA
