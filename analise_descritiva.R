@@ -279,10 +279,46 @@ addmargins(tab_Sms)
 
 # os que receberam a mensagem, 72% compareceu, os que nao receberam a mensagem, 83% compareceu, ou seja, nao ha muito efeito sobre a mensagem
 
-prop.table(tab_Sms,1)
+xtable(prop.table(tab_Sms,1)*100,digits = 2)
 
 
 ##### 
+#Diabetes
+
+tab_diabetes <- table(data$Diabetes, data$No.show)
+addmargins(tab_diabetes)
+
+xtable(prop.table(tab_diabetes,1)*100,digits = 2)
+
+#Alcoholism
+tab_Alcoholism <- table(data$Alcoholism, data$No.show)
+addmargins(tab_Alcoholism)
+
+xtable(prop.table(tab_Alcoholism,1)*100,digits = 2)
+
+#Hipertension
+
+tab_Hipertension <- table(data$Hipertension, data$No.show)
+addmargins(tab_Hipertension)
+
+xtable(prop.table(tab_Hipertension,1)*100,digits = 2)
+
+#Handcap
+
+tab_Handcap <- table(data$Handcap, data$No.show)
+addmargins(tab_Handcap)
+
+xtable(prop.table(tab_Handcap,1)*100,digits = 2)
+
+table(data$No.show)
+
+
+#Scholarship
+
+tab_Scholarship <- table(data$Scholarship, data$No.show)
+addmargins(tab_Scholarship)
+
+xtable(prop.table(tab_Scholarship,1)*100,digits = 2)
 
 # add no-show e (Diabetes, Alcoholism, Hipertension, Handcap, Scholarship, SMS_received)
 g_Diabetes <- ggplot(data, aes(x=Diabetes, fill=No.show)) + geom_bar(position="fill") +  theme_bw() +
