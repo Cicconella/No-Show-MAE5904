@@ -87,11 +87,11 @@ ConsulA <- ggplot(data.consultas) +
               scale_y_continuous(labels = scales::percent_format()) +
               theme(text = element_text(size=18)) +
               ylab("Frequência Relativa")+
-              xlab("Quantidade de agendamentos por paciente")
+              xlab("Quantidade de agendamentos")
 
 
 ConsulB <- ggplot(Freq_consul, aes(x=freq)) + theme_bw() +
-              ylab("Frequência") + xlab("Quantidade de agendamentos por paciente") + 
+              ylab("Frequência") + xlab("Quantidade de agendamentos") + 
               geom_bar(position = "stack",colour = "black", fill = "#723881") +
               theme(legend.position = "none") + 
               scale_x_continuous(breaks=c(1, 15, 30, 50, 88)) +
@@ -174,7 +174,9 @@ g_Age_1 <- ggplot(data, aes(x=Age,fill=No.show)) + theme_bw() +
   theme(text = element_text(size=20)) +
   scale_fill_manual(values=c("grey50", "#723881"))
 
-g_Age_2 <- ggplot(data, aes(x=No.show, y=Age, fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não")))) + 
+ 
+
+g_Age_2 <- ggplot(filter(data,Age!=(-1)), aes(x=No.show, y=Age, fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não")))) + 
   scale_x_discrete( labels = c("Yes" = "Sim","No" = "Não")) +
   theme_bw() + scale_fill_manual(values=c("grey50", "#723881")) +
   theme(text = element_text(size=20)) +
@@ -186,12 +188,18 @@ pdf("Gidade_NoShow.pdf", width = 20, height = 20) ;grid.arrange(g_Age_1, g_Age_2
 
 
 # observamos que temos idade de -1, que sao pacientes gravidas, elas frequentam mais nas consultas
-# pelo boxplot, tem uma concentracao maior no intervalo entre 15 ate 60, ou seja, tem mais jovem e adultos do que idosos, 
-# e tem dois outlier de 115 anos
-summary(data$Age)
+  # pelo boxplot, tem uma concentracao maior no intervalo entre 15 ate 60, ou seja, tem mais jovem e adultos do que idosos, 
+  # e tem dois outlier de 115 anos
 
 
 
+AgeNoshowYes <- filter(data,No.show=="Yes")$Age
+AgeNoshowNo <- filter(data,No.show=="No"& Age!=(-1))$Age
+
+resumo_AgeNoshowYes <- c(summary(AgeNoshowYes),sd(AgeNoshowYes))
+resumo_AgeNoshowNo <- c(summary(AgeNoshowNo),sd(AgeNoshowNo))
+
+xtable(rbind(resumo_AgeNoshowYes,resumo_AgeNoshowNo))
 
 
 faixas = c("0-5","6-18","19-60","61+")
@@ -208,17 +216,14 @@ data.faixa$x <- factor(data.faixa$x,levels = c("Bebê(0-5)", "Criança(6-18)",
                                                "Adulto(19-60)", "Idoso(61+)"))
 
 
-pdf("GFaixa.pdf", width = 15, height = 15)
+g_faixa_1 <- ggplot(data.faixa) + 
+                theme_bw() + 
+                geom_bar(aes(x=x, y = ..prop..,  group = 1), fill = "white", stat = "count",colour="black",position="dodge")+
+                scale_y_continuous(labels = scales::percent_format()) +
+                theme(text = element_text(size=15)) +
+                ylab("Frequência Relativa")+
+                xlab("Faixa Etária")
 
-ggplot(data.faixa) + 
-  theme_bw() + 
-  geom_bar(aes(x=x, y = ..prop..,  group = 1), fill = "#723881", stat = "count",colour="black",position="dodge")+
-  scale_y_continuous(labels = scales::percent_format()) +
-  theme(text = element_text(size=20)) +
-  ylab("Frequência Relativa")+
-  xlab("Faixa Etária")
-
-dev.off()
 
 
 
@@ -238,20 +243,21 @@ data.Faixa.NoShow <- data.frame(t(t(table(No.show,faixa_etaria))/apply(table(No.
 data.Faixa.NoShow$faixa_etaria  <- factor(data.Faixa.NoShow$faixa_etaria,
                                           levels = c("Bebê(0-5)", "Criança(6-18)", "Adulto(19-60)", "Idoso(61+)"))
 
-pdf("GFaixa_NoShow.pdf", width = 15, height = 15)
 
-ggplot(data.Faixa.NoShow, aes(x=faixa_etaria,y=Freq,fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não"))))+
-  theme_bw() +
-  geom_bar(stat="identity",colour="black")+
-  scale_y_continuous(labels = scales::percent_format()) +
-  scale_fill_manual(values=c("#723881","grey50")) +
-  theme(text = element_text(size=20)) +
-  labs(fill = "No Show") +
-  ylab("Frequência Relativa por Faixa Etária")+
-  xlab("Faixa Etária")
 
-dev.off()
+g_faixa_2 <- ggplot(data.Faixa.NoShow, aes(x=faixa_etaria,y=Freq,fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não"))))+
+              theme_bw() +
+              geom_bar(stat="identity",colour="black")+
+              scale_y_continuous(labels = scales::percent_format()) +
+              scale_fill_manual(values=c("#723881","grey50")) +
+              theme(text = element_text(size=15)) +
+              labs(fill = "No Show") +
+              ylab("Frequência Relativa por Faixa Etária")+
+              xlab("Faixa Etária")
 
+
+
+pdf("GFaixa_NoShow.pdf", width = 20, height = 20) ;grid.arrange(g_faixa_1, g_faixa_2,ncol=2); dev.off()
 
 
 # barplot(table(No.show,faixa_etaria), beside = T)
