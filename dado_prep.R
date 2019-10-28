@@ -44,12 +44,16 @@ Wait = as.integer(tempo)
 dados = cbind(dados,Wait)
 head(dados)
 
-#### Horario da Consulta ####
+#### Horario em que a Consulta  foi marcada####
 
 horario = unlist(strsplit(ScheduledDay, split = "T")) 
 horario = horario[seq(2,length(horario),by=2)]
 horario = gsub("Z","",horario)
 horario
+
+tt <- strptime(paste("2001-01-01", horario), format="%Y-%m-%d %H:%M:%S")
+
+horario = format(round(tt, units="hours"), format="%H:%M:%S")[1:20]
 
 horario = unlist(strsplit(horario, split = ":")) 
 horario = horario[seq(1,length(horario),by=3)]
@@ -57,10 +61,19 @@ horario = as.numeric(horario)
 horario
 
 madrugada = which(horario<9)
-manha = which(horario>8 & )
-tarde
-noite
+manha = which(horario>8 & horario<13)
+tarde = which(horario>12 & horario<19)
+noite = which(horario>18)
 
+Hour = rep(NA, nrow(dados))
+Hour[madrugada] = 1
+Hour[manha] = 2
+Hour[tarde] = 3
+Hour[noite] = 4
+
+head(dados)
+dados = cbind(dados,Hour)
+head(dados)
 
 #### Dia da Semana ####
 
@@ -68,5 +81,5 @@ noite
 #### 
 
 #Amostras com erro 
-data$ScheduledDay[which(tempo<0)] = NA
-data$AppointmentDay[which(tempo<0)] = NA
+#data$ScheduledDay[which(tempo<0)] = NA
+#data$AppointmentDay[which(tempo<0)] = NA
