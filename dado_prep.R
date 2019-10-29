@@ -1,6 +1,29 @@
 dados = read.table("noshowappointments/KaggleV2-May-2016.csv", header=T, sep=",", stringsAsFactors = F)
 head(dados)
+summary(dados)
 attach(dados)
+
+#### Colocar fatores ####
+dados$Scholarship[dados$Scholarship=="0"] = "No"
+dados$Scholarship[dados$Scholarship=="1"] = "Yes"
+
+dados$Hipertension[dados$Hipertension=="0"] = "No"
+dados$Hipertension[dados$Hipertension=="1"] = "Yes"
+
+dados$Diabetes[dados$Diabetes=="0"] = "No"
+dados$Diabetes[dados$Diabetes=="1"] = "Yes"
+
+dados$Alcoholism[dados$Alcoholism=="0"] = "No"
+dados$Alcoholism[dados$Alcoholism=="1"] = "Yes"
+
+dados$Handcap[dados$Handcap=="0"] = "No"
+dados$Handcap[dados$Handcap=="1"] = "Mild"
+dados$Handcap[dados$Handcap=="2"] = "Moderate"
+dados$Handcap[dados$Handcap=="3"] = "Severe"
+dados$Handcap[dados$Handcap=="4"] = "Very_Severe"
+
+dados$SMS_received[dados$SMS_received=="0"] = "No"
+dados$SMS_received[dados$SMS_received=="1"] = "Yes"
 
 #### Transformar age para faixa etária ####
 
@@ -13,19 +36,14 @@ crianca = which(Age>5 & Age<19)
 adulto = which(Age>18 & Age<61)
 idoso = which(Age>60)
 
-dados$Age[bebe] = "1"
-dados$Age[crianca] = "2"
-dados$Age[adulto] = "3"
-dados$Age[idoso] = "4"
-
-dados$Age = as.factor(dados$Age)
+dados$Age[bebe] = "Infant"
+dados$Age[crianca] = "Schooler"
+dados$Age[adulto] = "Student"
+dados$Age[idoso] = "Elderly"
 
 head(dados)
 
 #### Correcao tempo entre agendamento e consulta ####
-
-data$ScheduledDay
-data$AppointmentDay
 
 agenda = gsub("T"," ",ScheduledDay)
 agenda = gsub("Z","",agenda)
@@ -68,10 +86,10 @@ tarde = which(horario>12 & horario<19)
 noite = which(horario>18)
 
 Hour = rep(NA, nrow(dados))
-Hour[madrugada] = 1
-Hour[manha] = 2
-Hour[tarde] = 3
-Hour[noite] = 4
+Hour[madrugada] = "Dawn"
+Hour[manha] = "Morning"
+Hour[tarde] = "Afternoon"
+Hour[noite] = "Night"
 
 head(dados)
 dados = cbind(dados,Hour)
@@ -86,7 +104,7 @@ dia = strptime(dia, "%Y-%m-%d %H:%M:%S")
 dia
 
 Day_Week = weekdays(dia)
-table(dia_semana)
+table(Day_Week)
 
 dados = cbind(dados, Day_Week)
 head(dados)

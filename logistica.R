@@ -1,39 +1,60 @@
-##### Analise dos dados #####
-data = read.table("noshowappointments/KaggleV2-May-2016.csv",
-                  header=T, sep=",")
-head(data)
-attach(data)
+dados = read.table("treinamento.csv", header=T, sep=",")
+head(dados)
+summary(dados)
 
-#Dados de distancia
-data$ScheduledDay
-data$AppointmentDay
+#### Analise Regressão Logistica ####
 
-agenda = gsub("T"," ",ScheduledDay)
-agenda = gsub("Z","",agenda)
-class(agenda)
+glm.fits = glm(No.show ~ Gender+Age+Neighbourhood+Scholarship+Hipertension+Diabetes+Alcoholism+Handcap
+               +SMS_received+Wait+Hour+Day_Week,
+               data = dados, 
+               family = binomial)
 
-agenda = strptime(agenda, "%Y-%m-%d %H:%M:%S")
-agenda
+summary(glm.fits)
 
-dia = gsub("T"," ",AppointmentDay)
-dia = gsub("Z","",dia)
+resultados = predict(glm.fits, dados)
+t=0.5
+length(resultados)
+resultados[resultados<t] = "No"
+resultados[resultados>t] = "Yes"
 
-dia = strptime(dia, "%Y-%m-%d %H:%M:%S")
-dia
+length(resultados)
+length(dados$No.show)
 
-tempo = difftime(dia,agenda,units = "day")
-tempo = as.integer(tempo)
+table(resultados,dados$No.show)
+table(resultados==dados$No.show)
 
-head(data)
-data = cbind(data,tempo)
-head(data)
+table(resultados==dados$No.show)[2]/sum(table(resultados==dados$No.show))
 
-#Amostras com erro 
-data$ScheduledDay[which(tempo<0)] = NA
-data$AppointmentDay[which(tempo<0)] = NA
+#### Acerto = 80%
 
+teste = read.table("teste.csv", header=T, sep=",")
+head(teste)
+dim(teste)
 
-##### Regressao Logistica #####
+teste$No.show = as.character(teste$No.show)
+teste$No.show[teste$No.show=="Yes"] = 1
+teste$No.show[teste$No.show=="No"] = 0
+teste$No.show = as.numeric(teste$No.show)
+dim(teste)
+length(teste$No.show)
+
+resultados = predict(mod, teste)
+length(resultados)
+
+t=0.5
+length(resultados)
+resultados[resultados<t] = 0
+resultados[resultados>t] = 1
+
+length(resultados)
+length(teste$No.show)
+
+table(resultados,teste$No.show)
+table(resultados==teste$No.show)
+
+table(resultados==teste$No.show)[2]/sum(table(resultados==teste$No.show))
+
+#### Acerto = 79%
 
 glm.fits = glm(No.show ~ Age + Alcoholism + Diabetes + Gender + Handcap + Hipertension + Neighbourhood
                 + Scholarship + SMS_received + tempo,
