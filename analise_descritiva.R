@@ -208,23 +208,23 @@ adulto = which(Age>18 & Age<61)
 idoso = which(Age>60)
 
 
-data.faixa <- data.frame(x = c(rep("Bebê(0-5)",length(bebe)),rep("Criança(6-18)",length(crianca)),
+data.faixa <- data.frame(x = c(rep("Primeira Infância(0-5)",length(bebe)),rep("Idade escolar(6-18)",length(crianca)),
                                rep("Adulto(19-60)",length(adulto)),rep("Idoso(61+)",length(idoso))))
 
-data.faixa$x <- factor(data.faixa$x,levels = c("Bebê(0-5)", "Criança(6-18)","Adulto(19-60)", "Idoso(61+)"))
+data.faixa$x <- factor(data.faixa$x,levels = c("Primeira Infância(0-5)", "Idade escolar(6-18)","Adulto(19-60)", "Idoso(61+)"))
 
 
-porcent.datafaixa <- data.frame(x = c("Bebê(0-5)", "Criança(6-18)","Adulto(19-60)", "Idoso(61+)"), 
+porcent.datafaixa <- data.frame(x = c("Primeira Infância(0-5)", "Idade escolar(6-18)","Adulto(19-60)", "Idoso(61+)"), 
               y = round(c(length(bebe),length(crianca), length(adulto),length(idoso))/length(data$Age),2))
 
 
 g_faixa_1 <- ggplot(data.faixa) + 
                 theme_bw() + 
-                geom_bar(aes(x=x, y = ..prop..,  group = 1), fill = "white", stat = "count",colour="black",position="dodge")+
+                geom_bar(aes(x=x, y = ..prop..,  group = 1), fill = "gray", stat = "count" ,colour="black",position="dodge")+
                 geom_text(data=porcent.datafaixa, aes(x = x, y = y+0.02,
                                    label = paste0(y*100,"%")), size=6) +
                 scale_y_continuous(labels = scales::percent_format()) +
-                theme(text = element_text(size=15)) +
+                theme(text = element_text(size=20)) +
                 ylab("Frequência Relativa")+
                 xlab("Faixa Etária")
 
@@ -237,15 +237,15 @@ g_faixa_1 <- ggplot(data.faixa) +
 
 
 faixa_etaria = rep(NA, length(Age))
-faixa_etaria[bebe] = "Bebê(0-5)"
-faixa_etaria[crianca] = "Criança(6-18)"
+faixa_etaria[bebe] = "Primeira Infância(0-5)"
+faixa_etaria[crianca] = "Idade escolar(6-18)"
 faixa_etaria[adulto] = "Adulto(19-60)"
 faixa_etaria[idoso] = "Idoso(61+)"
 
 data.Faixa.NoShow <- data.frame(t(t(table(No.show,faixa_etaria))/apply(table(No.show,faixa_etaria),2,sum)))
 
 data.Faixa.NoShow$faixa_etaria  <- factor(data.Faixa.NoShow$faixa_etaria,
-                                          levels = c("Bebê(0-5)", "Criança(6-18)", "Adulto(19-60)", "Idoso(61+)"))
+                                          levels = c("Primeira Infância(0-5)", "Idade escolar(6-18)", "Adulto(19-60)", "Idoso(61+)"))
 
 data.Faixa.NoShow1 <- cbind(data.Faixa.NoShow, y = round(data.Faixa.NoShow$Freq,2), x = data.Faixa.NoShow$Freq + rep(c(0.02,-0.1),4 ))
 
@@ -257,7 +257,7 @@ g_faixa_2 <- ggplot(data.Faixa.NoShow1, aes(x=faixa_etaria,y=Freq,fill=factor(No
                                         label = paste0(y*100,"%")), size=6) +
               scale_y_continuous(labels = scales::percent_format()) +
               scale_fill_manual(values=c("#723881","grey50")) +
-              theme(text = element_text(size=15)) +
+              theme(text = element_text(size=20)) +
               labs(fill = "No Show") +
               ylab("Frequência Relativa por Faixa Etária")+
               xlab("Faixa Etária")
@@ -379,6 +379,52 @@ dev.off()
 
 
 #add no-show e Neighbourhood
+
+Freq_Neighbourhood <- filter(count(data$Neighbourhood), freq >=100) 
+
+DadosNeighbourhood <- subset(data,Neighbourhood %in%  Freq_Neighbourhood$x, select = c(7,14)) %>% count() 
+
+DadosNeighbourhood1 <- cbind(Yes=subset(DadosNeighbourhood, No.show =="Yes"), No=
+                      subset(DadosNeighbourhood, No.show =="No",select =c(2,3)))
+
+N <- DadosNeighbourhood1$Yes.freq + DadosNeighbourhood1$No.freq
+taxaNo.show <- DadosNeighbourhood1$Yes.freq/N
+neigh.N <- paste(DadosNeighbourhood1$Yes.Neighbourhood,"(",N,")")
+
+DataNeig <- data.frame(neigh.N, taxaNo.show, taxar = round(taxaNo.show,2))
+
+DataNeig <- DataNeig[order(taxaNo.show, decreasing = F),] 
+
+DataNeig$neigh.N  <- factor(DataNeig$neigh.N,  levels = DataNeig$neigh.N )
+
+medianoshow <- mean(DataNeig$taxaNo.show)
+
+ggplot(DataNeig, aes(neigh.N, taxaNo.show, label = taxar)) +   
+  theme_bw() +
+  geom_hline(aes(yintercept = medianoshow, color = "Taxa Média")) +
+  geom_bar(stat = "identity", fill = "grey50", width = 0.5,colour = "black" ) +
+  geom_text(nudge_y = 0.004,  size = 3) +
+  scale_colour_manual(" ",values = c("black")) +
+  theme(text = element_text(size=13)) +
+  theme(legend.position = c(0.75, 0.2), legend.direction = "horizontal") +
+  ylab("Taxa de No-Show") + xlab("Endereço da consulta ( n = número de agendamentos)") + 
+  coord_flip() 
+
+
+
+# No Show e dias da semana
+
+datatransf <- read.table("dados_no_show.csv", header=T, sep=",")
+
+
+
+datatempo <- subset(datatransf,select = c("No.show","Wait","Hour","Day_Week"))
+
+
+table(datatempo[,c(1,4)])
+
+
+
 g_neigh_amount <- ggplot(data,aes(x=Neighbourhood,fill=factor(No.show,labels=c("Yes"="Sim","No" = "Não"))))+
   geom_bar(position="stack")+
   theme_bw() +
