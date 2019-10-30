@@ -38,7 +38,7 @@ idoso = which(Age>60)
 
 dados$Age[bebe] = "Infant"
 dados$Age[crianca] = "Schooler"
-dados$Age[adulto] = "Student"
+dados$Age[adulto] = "Adult"
 dados$Age[idoso] = "Elderly"
 
 head(dados)
@@ -107,6 +107,20 @@ Day_Week = weekdays(dia)
 table(Day_Week)
 
 dados = cbind(dados, Day_Week)
+head(dados)
+
+dados[19745,]
+
+dia = gsub("T"," ",ScheduledDay)
+dia = gsub("Z","",dia)
+
+dia = strptime(dia, "%Y-%m-%d %H:%M:%S")
+dia
+
+Day_Week_Appointment = weekdays(dia)
+table(Day_Week)
+
+dados = cbind(dados, Day_Week_Appointment)
 head(dados)
 
 dados[19745,]
