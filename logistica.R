@@ -2,6 +2,8 @@ dados = read.table("treinamento.csv", header=T, sep=",")
 head(dados)
 summary(dados)
 
+dados = dados[-which(is.na(dados$Wait)),]
+
 #### Analise Regressão Logistica ####
 
 glm.fits = glm(No.show ~ Gender+Age+Neighbourhood+Scholarship+Hipertension+Diabetes+Alcoholism+Handcap
@@ -13,21 +15,18 @@ summary(glm.fits)
 
 
 resultados = predict(glm.fits, type = "response")
-
-
 resultados
 t=0.5
 length(resultados)
 resultados[resultados<t] = "No"
-resultados[resultados>t] = "Yes"
+resultados[resultados!="No"] = "Yes"
 
 length(resultados)
 length(dados$No.show)
 
-table(resultados,dados$No.show)
+table(resultados)
 table(resultados==dados$No.show)
-
-table(resultados==dados$No.show)[2]/sum(table(resultados==dados$No.show))
+mean(resultados==dados$No.show)
 
 #### Acerto = 80%
 
@@ -35,45 +34,46 @@ teste = read.table("teste.csv", header=T, sep=",")
 head(teste)
 dim(teste)
 
-teste$No.show = as.character(teste$No.show)
-teste$No.show[teste$No.show=="Yes"] = 1
-teste$No.show[teste$No.show=="No"] = 0
-teste$No.show = as.numeric(teste$No.show)
-dim(teste)
+teste = teste[-which(is.na(teste$Wait)),]
 length(teste$No.show)
 
-resultados = predict(mod, teste)
+resultados = predict(glm.fits, teste)
 length(resultados)
 
 t=0.5
 length(resultados)
-resultados[resultados<t] = 0
-resultados[resultados>t] = 1
+resultados[resultados<t] = "No"
+resultados[resultados!="No"] = "Yes"
 
 length(resultados)
 length(teste$No.show)
 
 table(resultados,teste$No.show)
-table(resultados==teste$No.show)
-
-table(resultados==teste$No.show)[2]/sum(table(resultados==teste$No.show))
+mean(resultados==teste$No.show)
 
 #### Acerto = 79%
 
-glm.fits = glm(No.show ~ Age + Alcoholism + Diabetes + Gender + Handcap + Hipertension + Neighbourhood
-                + Scholarship + SMS_received + tempo,
-                data = data, 
-                family = binomial)
-
-summary(glm.fits)
-
 #Mantendo so as variaveis com alguma significancia
 
-glm.fits = glm(No.show ~ Age + Alcoholism + Diabetes + Hipertension + Scholarship + SMS_received + tempo,
-                data = data, 
+glm.fits = glm(No.show ~ Age + Alcoholism + Diabetes + Hipertension + Scholarship + SMS_received + Wait,
+                data = dados, 
                 family = binomial)
 
 summary(glm.fits)
+
+resultados = predict(glm.fits, teste)
+length(resultados)
+
+t=0.5
+length(resultados)
+resultados[resultados<t] = "No"
+resultados[resultados!="No"] = "Yes"
+
+length(resultados)
+length(teste$No.show)
+
+table(resultados,teste$No.show)
+mean(resultados==teste$No.show)
 
 #Hipertesao nao foi significativo
 glm.fits = glm(No.show ~ Age + Alcoholism + Diabetes + Scholarship + SMS_received + tempo,
