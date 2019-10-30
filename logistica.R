@@ -5,13 +5,17 @@ summary(dados)
 #### Analise Regressão Logistica ####
 
 glm.fits = glm(No.show ~ Gender+Age+Neighbourhood+Scholarship+Hipertension+Diabetes+Alcoholism+Handcap
-               +SMS_received+Wait+Hour+Day_Week,
+               +SMS_received+Wait+Hour+Day_Week + Day_Week_Appointment,
                data = dados, 
                family = binomial)
 
 summary(glm.fits)
 
-resultados = predict(glm.fits, dados)
+
+resultados = predict(glm.fits, type = "response")
+
+
+resultados
 t=0.5
 length(resultados)
 resultados[resultados<t] = "No"
