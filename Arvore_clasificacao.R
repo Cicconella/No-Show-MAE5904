@@ -1,7 +1,8 @@
 rm(list = ls())
+library(rpart)          # decision tree methodology
+library(rpart.plot)     # decision tree visualization
 library(dplyr)
 library(xtable)
-library(reshape2) 
 require(plyr)
 
 dados.trat <- read.table("treinamento.csv", header=T, sep=",")
