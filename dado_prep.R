@@ -1,4 +1,4 @@
-dados = read.table("noshowappointments/KaggleV2-May-2016.csv", header=T, sep=",", stringsAsFactors = F)
+dados = read.table("dados_filtrados.csv", header=T, sep=",", stringsAsFactors = F)
 head(dados)
 summary(dados)
 attach(dados)
