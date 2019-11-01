@@ -18,13 +18,13 @@ attach(data)
 
 
 tree.no_show <- rpart(formula = No.show ~ Gender + Age  + Scholarship + Hipertension + Diabetes + Alcoholism + Handcap
-                      + SMS_received + Wait, data = data,method = "class", maxdepth =4,
-                      minsplit = 2,
-                      minbucket = 1,
+                      + SMS_received + Wait, data = data,method = "class", maxdepth =3,
+                      minsplit = 3,
+                      minbucket = 2,
                       cp=-1)
 
+rpart.plot::rpart.plot(tree.no_show, cex = 0.9)
 
-rpart.plot(tree.no_show)
 tree.no_show 
 tree.no_show$cptable
 
