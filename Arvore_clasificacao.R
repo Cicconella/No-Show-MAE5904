@@ -6,12 +6,16 @@ library(xtable)
 require(plyr)
 
 dados.trat <- read.table("treinamento.csv", header=T, sep=",")
+dim(dados.trat)
 dados.trat <- dados.trat[-which(is.na(dados.trat$Wait)),]
+dim(dados.trat)
 dados.test <- read.table("teste.csv", header=T, sep=",")
-dados.test <-  dados.test[-which(is.na(dados.test$Wait)),]
+dim(dados.test)
+which(is.na(dados.test$Wait))
 
+data <- rbind.data.frame(dados.trat,dados.test)
 
-data <- rbind(dados.trat,dados.test) %>% as.data.frame()
+dim(data)
 
 head(data)
 attach(data)
