@@ -160,10 +160,20 @@ length(teste)
 p = table(dados$No.show[teste])
 p/sum(p)
 
-write.table(dados[treinamento,], "treinamento.csv", col.names = T, row.names = F, quote = F, 
+treinamento = dados[treinamento,]
+dim(treinamento)
+table(treinamento$No.show)
+
+head(treinamento)
+
+treinamento$No.show = as.factor(treinamento$No.show)
+
+treinamento = upSample(treinamento[,-12], treinamento[,12], list = FALSE, yname = "No.show")
+dim(treinamento)
+table(treinamento$No.show)
+
+write.table(treinamento, "treinamento.csv", col.names = T, row.names = F, quote = F, 
             sep=",")
 
 write.table(dados[teste,], "teste.csv", col.names = T, row.names = F, quote = F, sep=",")
 
-
-##### Validação #####

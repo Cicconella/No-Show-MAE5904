@@ -1,8 +1,17 @@
-################# nnet
-
+dados = read.table("treinamento.csv", header=T, sep=",", stringsAsFactors = T)
 head(dados)
+dim(dados)
+summary(dados)
+attach(dados)
 
-require(nnet)
+table(dados$No.show)
+
+dados_up = upSample(dados[,-12], dados[,12], list = FALSE, yname = "No.show")
+dim(dados_up)
+head(dados_up)
+table(dados_up$No.show)
+
+################# nnet
 
 model_nnet <- nnet(formula = No.show ~ Gender + Age + Neighbourhood + Scholarship +
                      Hipertension + Diabetes + Alcoholism + Handcap + SMS_received +
@@ -17,6 +26,24 @@ y = dados[,12]
 pred <- predict(model_nnet,x,type="class") 
 resultado <- confusionMatrix(as.factor(pred), y)
 resultado
+
+####
+
+model_nnet <- nnet(formula = No.show ~ Gender + Age + Neighbourhood + Scholarship +
+                     Hipertension + Diabetes + Alcoholism + Handcap + SMS_received +
+                     Hour + Day_Week + Day_Week_Appointment, 
+                   data=dados_up, size=4, decay=0.0001, maxit = 700, 
+                   trace= FALSE)
+
+head(dados_up)
+#summary(model_nnet)
+x = dados_up[,c(3:15)]
+y = dados_up[,16]
+
+pred <- predict(model_nnet,x,type="class") 
+resultado <- confusionMatrix(as.factor(pred), y)
+resultado
+
 
 
 head(dados)
