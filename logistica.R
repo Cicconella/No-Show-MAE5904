@@ -1,6 +1,7 @@
 dados = read.table("treinamento.csv", header=T, sep=",")
 head(dados)
 summary(dados)
+dim(dados)
 
 dados = dados[-which(is.na(dados$Wait)),]
 
@@ -28,14 +29,11 @@ table(resultados)
 table(resultados==dados$No.show)
 mean(resultados==dados$No.show)
 
-#### Acerto = 80%
+#### Acerto = 78%
 
 teste = read.table("teste.csv", header=T, sep=",")
 head(teste)
 dim(teste)
-
-teste = teste[-which(is.na(teste$Wait)),]
-length(teste$No.show)
 
 resultados = predict(glm.fits, teste)
 length(resultados)
@@ -55,7 +53,8 @@ mean(resultados==teste$No.show)
 
 #Mantendo so as variaveis com alguma significancia
 
-glm.fits = glm(No.show ~ Age + Alcoholism + Diabetes + Hipertension + Scholarship + SMS_received + Wait,
+glm.fits = glm(No.show ~ Age + Scholarship+ Hipertension + Diabetes+ Alcoholism + SMS_received + Wait + Hour 
+               + Day_Week + Day_Week_Appointment,
                 data = dados, 
                 family = binomial)
 
