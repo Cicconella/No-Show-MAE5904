@@ -24,6 +24,14 @@ dados_teste <- dados_teste[,-c(1,2)]
 dados_teste <- dados_teste[-which(dados_teste$Neighbourhood=='PARQUE INDUSTRIAL'),]
 summary(dados_teste)
 
+dados_gerais <- read.table("dados_no_show.csv", header=T, sep=",")
+dados_gerais <- dados_gerais[,-c(1,2)]
+dados_gerais <- dados_gerais[-which(dados_gerais$Neighbourhood=='PARQUE INDUSTRIAL'),]
+dados_gerais <- dados_gerais[-which(is.na(dados_gerais$Wait)),]
+
+
+
+
 # Treinamento do Modelo Logistico
 control <- trainControl(method="repeatedcv", number=10)# Parametro de Cross Validation para treinamento
 modelLogistica <- train( No.show ~ .,data = dados,trControl = control,method = "glm",family=binomial, na.action = na.omit)# train the model on training set
@@ -37,6 +45,10 @@ summary(modelLogistica)
 resultados_teste <- predict(modelLogistica, newdata=dados_teste, type="raw", na.action = na.omit)
 confusionMatrix(as.factor(resultados_teste), as.factor(dados_teste$No.show)) # Métricas de ajuste na base de Teste
 
+
+#Aplicação do MOdelo Logistico para os Dados Gerais
+resultados_gerais <- predict(modelLogistica, newdata=dados_gerais, type="raw")
+confusionMatrix(as.factor(resultados_gerais), as.factor(dados_gerais$No.show)) # Métricas de ajuste na base de Teste
 
 
 
