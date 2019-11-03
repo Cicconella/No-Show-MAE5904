@@ -1,15 +1,8 @@
-dados = read.table("treinamento.csv", header=T, sep=",", stringsAsFactors = T)
+dados = read.table("dados_no_show.csv", header=T, sep=",", stringsAsFactors = T)
 head(dados)
 dim(dados)
 summary(dados)
 attach(dados)
-
-table(dados$No.show)
-
-dados_up = upSample(dados[,-12], dados[,12], list = FALSE, yname = "No.show")
-dim(dados_up)
-head(dados_up)
-table(dados_up$No.show)
 
 ################# nnet
 
@@ -19,6 +12,8 @@ model_nnet <- nnet(formula = No.show ~ Gender + Age + Neighbourhood + Scholarshi
                    data=dados, size=4, decay=0.0001, maxit = 700, 
                    trace= FALSE)
 
+head(dados)
+
 #summary(model_nnet)
 x = dados[,c(3:11,13:16)]
 y = dados[,12]
@@ -27,56 +22,49 @@ pred <- predict(model_nnet,x,type="class")
 resultado <- confusionMatrix(as.factor(pred), y)
 resultado
 
-####
+#### Dados de treinamento ####
+
+dados = read.table("treinamento.csv", header=T, sep=",", stringsAsFactors = T)
+head(dados)
+dim(dados)
+summary(dados)
+attach(dados)
+
 
 model_nnet <- nnet(formula = No.show ~ Gender + Age + Neighbourhood + Scholarship +
                      Hipertension + Diabetes + Alcoholism + Handcap + SMS_received +
                      Hour + Day_Week + Day_Week_Appointment, 
-                   data=dados_up, size=4, decay=0.0001, maxit = 700, 
+                   data=dados, size=4, decay=0.0001, maxit = 700, 
                    trace= FALSE)
 
-head(dados_up)
+head(dados)
 #summary(model_nnet)
-x = dados_up[,c(3:15)]
-y = dados_up[,16]
+x = dados[,c(3:15)]
+y = dados[,16]
 
 pred <- predict(model_nnet,x,type="class") 
 resultado <- confusionMatrix(as.factor(pred), y)
 resultado
 
+#### Dados de teste ####
 
-
+dados = read.table("teste.csv", header=T, sep=",", stringsAsFactors = T)
 head(dados)
+summary(dados)
 
-yes=which(dados$No.show=="Yes")
-length(yes)
-
-no=which(dados$No.show=="No")
-length(no)
-
-dados2=dados[c(yes,no[1:length(yes)]),]
-dim(dados2)
-
-model_nnet2 <- nnet(formula = No.show ~ Gender + Age + Neighbourhood + Scholarship +
-                     Hipertension + Diabetes + Alcoholism + Handcap + SMS_received +
-                     Hour + Day_Week + Day_Week_Appointment, 
-                   data=dados2, size=4, decay=0.0001, maxit = 700, 
-                   trace= FALSE)
-
+require(gdata)
+head(dados)
 #summary(model_nnet)
-x2 = dados2[,c(3:11,13:16)]
-y2 = dados2[,12]
+dados = dados[-which(dados$Neighbourhood=="PARQUE INDUSTRIAL"),]
+dados$Neighbourhood = drop.levels(dados$Neighbourhood)
 
-pred2 <- predict(model_nnet2,x2,type="class") 
-resultado2 <- confusionMatrix(as.factor(pred2), y2)
-resultado2
+unique(dados$Neighbourhood)
+x = dados[,c(3:11,13:16)]
+y = dados[,12]
 
-#### 
-
-teste = read.table("teste.csv", header=T, sep=",", stringsAsFactors = T)
-head(teste)
-summary(teste)
-
+pred <- predict(model_nnet,x,type="class") 
+resultado <- confusionMatrix(as.factor(pred), y)
+resultado
 
 
 
