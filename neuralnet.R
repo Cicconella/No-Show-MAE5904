@@ -1,14 +1,18 @@
 dados = read.table("dados_no_show.csv", header=T, sep=",", stringsAsFactors = T)
 head(dados)
 dim(dados)
-summary(dados)
-attach(dados)
+#summary(dados)
+#attach(dados)
+library(nnet)
+library(caret)
 
 ################# nnet
 
+?nnet
+
 model_nnet <- nnet(formula = No.show ~ Gender + Age + Neighbourhood + Scholarship +
                      Hipertension + Diabetes + Alcoholism + Handcap + SMS_received +
-                     Hour + Day_Week + Day_Week_Appointment, 
+                     Hour + Day_Week + Day_Week_Appointment + Wait, 
                    data=dados, size=4, decay=0.0001, maxit = 700, 
                    trace= FALSE)
 
@@ -33,7 +37,7 @@ attach(dados)
 
 model_nnet <- nnet(formula = No.show ~ Gender + Age + Neighbourhood + Scholarship +
                      Hipertension + Diabetes + Alcoholism + Handcap + SMS_received +
-                     Hour + Day_Week + Day_Week_Appointment, 
+                     Hour + Day_Week + Day_Week_Appointment + Wait, 
                    data=dados, size=4, decay=0.0001, maxit = 700, 
                    trace= FALSE)
 
