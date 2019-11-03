@@ -391,7 +391,7 @@ N <- DadosNeighbourhood1$Yes.freq + DadosNeighbourhood1$No.freq
 taxaNo.show <- DadosNeighbourhood1$Yes.freq/N
 neigh.N <- paste(DadosNeighbourhood1$Yes.Neighbourhood,"(",N,")")
 
-DataNeig <- data.frame(neigh.N, taxaNo.show, taxar = round(taxaNo.show,2))
+DataNeig <- data.frame(neigh.N, taxaNo.show, taxar = round(taxaNo.show,3))
 
 DataNeig <- DataNeig[order(taxaNo.show, decreasing = F),] 
 
@@ -399,12 +399,13 @@ DataNeig$neigh.N  <- factor(DataNeig$neigh.N,  levels = DataNeig$neigh.N )
 
 medianoshow <- mean(DataNeig$taxaNo.show)
 
-ggplot(DataNeig, aes(neigh.N, taxaNo.show, label = taxar)) +   
+ggplot(DataNeig, aes(neigh.N, taxaNo.show, label = paste(taxar*100,"%"))) +   
   theme_bw() +
   geom_hline(aes(yintercept = medianoshow, color = "Taxa Média")) +
   geom_bar(stat = "identity", fill = "grey50", width = 0.5,colour = "black" ) +
-  geom_text(nudge_y = 0.004,  size = 3) +
+  geom_text(nudge_y = 0.005,  size = 3) +
   scale_colour_manual(" ",values = c("black")) +
+  scale_y_continuous(labels = scales::percent_format()) +
   theme(text = element_text(size=13)) +
   theme(legend.position = c(0.75, 0.2), legend.direction = "horizontal") +
   ylab("Taxa de No-Show") + xlab("Endereço da consulta ( n = número de agendamentos)") + 
@@ -412,16 +413,25 @@ ggplot(DataNeig, aes(neigh.N, taxaNo.show, label = taxar)) +
 
 
 
-# No Show e dias da semana
+  # No Show e dias da semana
 
 datatransf <- read.table("dados_no_show.csv", header=T, sep=",")
-
-
 
 datatempo <- subset(datatransf,select = c("No.show","Wait","Hour","Day_Week"))
 
 
-table(datatempo[,c(1,4)])
+datanew <- data.frame(table(datatempo[,c(1,4)]))
+
+cbind(Yes = subset(datanew,No.show=="Yes"),No =subset( datanew,No.show=="No", Freq))
+
+DataNeig$neigh.N  <- factor(datanew$Day_Week,  levels = c("Monday","Tuesday","Wednesday",
+                                                         "Thursday", "Friday", "Saturday" ) )
+
+
+
+
+
+
 
 
 
