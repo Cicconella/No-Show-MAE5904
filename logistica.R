@@ -7,6 +7,8 @@ library(glmnet)
 library(e1071)
 library(MASS)
 library(mlbench)
+library(pROC)
+par(mfrow=c(1,1))
 
 
 # Leitura e tratamento final nos dados
@@ -40,6 +42,8 @@ modelLogistica <- train( No.show ~ .,data = dados,trControl = control,method = "
 resultados <- predict(modelLogistica, newdata = dados,type = "raw")
 confusionMatrix(as.factor(resultados), as.factor(dados$No.show))
 summary(modelLogistica)
+varImp(fit) # Importância de variáveis para o modelo logistico
+
 
 #Aplicação do Modelo na Base de Teste
 resultados_teste <- predict(modelLogistica, newdata=dados_teste, type="raw", na.action = na.omit)
@@ -49,6 +53,33 @@ confusionMatrix(as.factor(resultados_teste), as.factor(dados_teste$No.show)) # M
 #Aplicação do MOdelo Logistico para os Dados Gerais
 resultados_gerais <- predict(modelLogistica, newdata=dados_gerais, type="raw")
 confusionMatrix(as.factor(resultados_gerais), as.factor(dados_gerais$No.show)) # Métricas de ajuste na base de Teste
+
+# Treinamento do Modelo Logistico ba Base de Dados Gerais
+modelLogistica_Geral <- train( No.show ~ .,data = dados_gerais,trControl = control,method = "glm",family=binomial, na.action = na.omit)# train the model on training set
+resultados_gerais <- predict(modelLogistica_Geral, newdata=dados_gerais, type="raw", na.action = na.omit)
+confusionMatrix(as.factor(resultados_gerais), as.factor(dados_gerais$No.show)) # Métricas de ajuste na base de Teste
+
+
+#Importância por Variavel
+par(mfrow=c(1,2))
+fit=randomForest(as.factor(dados$No.show)~., data=dados[,-3])
+varImp(fit)
+varImpPlot(fit,type=2)
+
+
+# ROC Curve
+mylogit <- glm(No.show ~ ., data = dados, family = "binomial")
+prob=predict(mylogit, type=c("response"))
+dados$prob=prob
+g <- roc(as.numeric(dados$No.show) ~ as.numeric(prob), data = dados)
+plot(g) 
+
+
+
+# Término da Análise de Regressão Logistica
+
+
+
 
 
 
